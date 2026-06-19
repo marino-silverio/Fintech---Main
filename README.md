@@ -32,3 +32,30 @@ metal-wallet/
 ├── style.css    # Regras globais de CSS, fontes e customização da barra de rolagem
 ├── script.js    # Lógica de funcionamento, arrays de dados e localStorage
 └── README.md    # Documentação do projeto
+````
+
+##  Como Executar e Testar Localmente
+
+Este projeto foi configurado para rodar diretamente no navegador do cliente, não sendo necessária a instalação do Node.js, NPM ou a inicialização de um servidor local.
+
+1) Faça o download do projeto:
+Clone este repositório usando o Git ou faça o download do código-fonte em formato .zip e extraia em uma pasta no seu computador.
+git clone [COLOQUE_SEU_LINK_DO_GITHUB_AQUI]
+
+2) Abra o projeto:
+Navegue até a pasta onde os arquivos foram extraídos. Garanta que index.html, style.css e script.js estejam no mesmo diretório.
+
+3) Execute:
+Dê um duplo clique no arquivo index.html. Ele será aberto no seu navegador padrão (é necessário ter conexão com a internet na primeira abertura para que o CDN do Tailwind e das fontes seja carregado).
+
+4) Teste a aplicação:
+
+* Abra o menu lateral (ícone de hambúrguer no topo esquerdo).
+
+- Crie uma nova carteira ou utilize a padrão.
+
+- Adicione transações e veja o painel reagir em tempo real.
+
+- Atualize a página (F5) para testar a persistência dos dados.
+
+
