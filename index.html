@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metal Wallet - Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { metal: { 900: '#121212', 800: '#1f1f1f', 700: '#2d2d2d' } } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-metal-900 text-gray-100 min-h-screen relative overflow-x-hidden">
+
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-metal-800 border-r border-metal-700 transform -translate-x-full transition-transform duration-300 z-50 shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-metal-700 flex justify-between items-center bg-black/30">
+            <h2 class="text-2xl font-bold uppercase tracking-wider text-gray-100 logo-font">Menu</h2>
+            <button id="close-menu" class="text-gray-400 hover:text-white transition-colors text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Carteiras</h3>
+            </div>
+            <ul class="space-y-3" id="lista-carteiras">
+                </ul>
+            <button onclick="adicionarNovaCarteira()" class="w-full mt-4 text-left px-4 py-3 text-gray-300 hover:bg-metal-700 hover:text-white rounded transition-colors flex items-center border border-dashed border-metal-600">
+                <i class="fas fa-plus mr-3 text-emerald-500"></i> Adicionar carteira
+            </button>
+        </div>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/70 hidden z-40 transition-opacity"></div>
+
+    <header class="p-4 md:p-6 border-b border-metal-700 bg-black/50 shadow-md flex justify-between items-center relative">
+        <button id="open-menu" class="text-gray-300 hover:text-white text-2xl z-10 p-2">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-gray-100 uppercase logo-font absolute left-1/2 transform -translate-x-1/2">Metal Wallet</h1>
+        <div class="w-10"></div> 
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 flex flex-col space-y-6">
+            
+            <div class="bg-metal-800 px-4 py-2 rounded border border-blue-500/30 text-blue-400 font-semibold flex items-center shadow-lg">
+                <i class="fas fa-wallet mr-2"></i> Exibindo dados de: <span id="nome-carteira-ativa" class="ml-2 text-white"></span>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center bg-metal-800 p-4 rounded-lg shadow-lg border border-metal-700">
+                <div class="text-lg font-bold mb-4 md:mb-0 text-gray-200">Período de Análise</div>
+                <div class="flex space-x-2 md:space-x-4 w-full md:w-auto">
+                    <input type="text" id="filtro-data-inicial" placeholder="Data inicial" class="flex-1 md:flex-none px-3 py-2 bg-metal-900 border border-metal-700 rounded text-sm text-gray-300 cursor-pointer focus:outline-none focus:border-blue-500 text-center w-32" readonly>
+                    <span class="text-gray-500 self-center">até</span>
+                    <input type="text" id="filtro-data-final" placeholder="Data final" class="flex-1 md:flex-none px-3 py-2 bg-metal-900 border border-metal-700 rounded text-sm text-gray-300 cursor-pointer focus:outline-none focus:border-blue-500 text-center w-32" readonly>
+                    <button onclick="limparFiltros()" class="px-3 py-2 bg-metal-700 hover:bg-metal-600 rounded text-sm" title="Limpar Filtros"><i class="fas fa-eraser"></i></button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-metal-800 p-6 rounded-lg border-l-4 border-l-emerald-500 flex flex-col justify-center items-center shadow-lg">
+                    <h2 class="text-emerald-500 text-lg uppercase font-bold mb-2">Ganho</h2>
+                    <p id="display-ganho" class="text-3xl font-bold text-white">$0.00</p>
+                </div>
+                <div class="bg-metal-800 p-6 rounded-lg border-l-4 border-l-red-500 flex flex-col justify-center items-center shadow-lg">
+                    <h2 class="text-red-500 text-lg uppercase font-bold mb-2">Gasto</h2>
+                    <p id="display-gasto" class="text-3xl font-bold text-white">$0.00</p>
+                </div>
+                <div class="bg-metal-800 p-6 rounded-lg border-l-4 border-l-blue-500 flex flex-col justify-center items-center shadow-lg">
+                    <h2 class="text-blue-500 text-lg uppercase font-bold mb-2">Balanço</h2>
+                    <p id="display-balanco" class="text-3xl font-bold text-white">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 bg-metal-800 rounded-lg shadow-lg border border-metal-700 flex flex-col max-h-[600px]">
+            <div class="p-4 border-b border-metal-700 flex justify-between items-center bg-black/20">
+                <h3 class="text-lg font-bold text-gray-200 uppercase">Lançamentos do Período</h3>
+            </div>
+            <div class="p-4 flex-1 overflow-y-auto space-y-3" id="lista-lancamentos">
+                </div>
+        </div>
+
+    </main>
+
+    <div id="transaction-modal" class="fixed inset-0 bg-black/80 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-metal-800 rounded-lg border border-metal-700 w-full max-w-md shadow-2xl" id="modal-content">
+            <div class="p-5 border-b border-metal-700 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold text-white uppercase">Adicionar</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="input-transacao-id">
+                <input type="hidden" id="input-tipo">
+                
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Descrição (Opcional)</label>
+                    <input type="text" id="input-descricao" placeholder="Ex: Salário, Conta de Luz..." class="w-full bg-metal-900 border border-metal-700 rounded px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Valor ($)</label>
+                    <input type="number" id="input-valor" placeholder="Ex: 150.00" step="0.01" class="w-full bg-metal-900 border border-metal-700 rounded px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Escolha a data</label>
+                    <input type="text" id="input-data" placeholder="Selecione a data" class="w-full bg-metal-900 border border-metal-700 rounded px-4 py-2 text-white cursor-pointer focus:outline-none focus:border-blue-500" readonly>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button id="btn-excluir-transacao" onclick="excluirTransacaoAtual()" class="hidden w-1/3 bg-red-900/50 hover:bg-red-800 border border-red-500 text-white font-bold py-3 rounded transition-colors uppercase text-sm">
+                        Excluir
+                    </button>
+                    <button id="btn-salvar-transacao" onclick="salvarTransacao()" class="w-full bg-metal-700 hover:bg-metal-600 border border-metal-500 text-white font-bold py-3 rounded transition-colors uppercase tracking-wider">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
